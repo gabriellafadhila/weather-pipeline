@@ -3,14 +3,17 @@ Gabriella Fadhilatus Awanda | Cetta Data Engineer Technical Test
 
 Pipeline ini ngambil data cuaca Malang dari weatherstack.com dan nyimpen hasilnya ke Google Spreadsheet secara otomatis 2x sehari (00:38 dan 12:38).
 
+Dashboard: https://weather-pipeline-malang.streamlit.app/
+
 ---
 
 ## Struktur File
 ```
 case2_weather/
-├── weather_pipeline.py   # script utama
+├── weather_pipeline.py   # script utama pipeline
+├── run_once.py           # versi pipeline untuk GitHub Actions
 ├── config.py             # konfigurasi API key & spreadsheet
-├── credentials.json      # google service account (jangan di-share)
+├── requirements.txt      # dependencies
 └── README.md
 ```
 
@@ -56,7 +59,18 @@ Pipeline akan langsung fetch data sekali saat pertama dijalankan, lalu otomatis 
 
 ---
 
-## Penjadwalan Otomatis
+## Penjadwalan Otomatis (GitHub Actions)
+
+Pipeline dijadwalkan via GitHub Actions sehingga berjalan otomatis tanpa perlu laptop menyala. Konfigurasi ada di `.github/workflows/weather_schedule.yml`.
+
+Tambahkan 3 secrets di GitHub repo (Settings → Secrets → Actions):
+- `WEATHERSTACK_API_KEY` → API key dari weatherstack.com
+- `SPREADSHEET_ID` → ID Google Spreadsheet
+- `GCP_CREDENTIALS` → seluruh isi file `credentials.json`
+
+---
+
+## Penjadwalan Manual
 
 **Windows (Task Scheduler)**
 1. Buka Task Scheduler, klik "Create Basic Task"
