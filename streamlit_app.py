@@ -2,16 +2,13 @@ import streamlit as st
 import gspread
 import pandas as pd
 from google.oauth2.service_account import Credentials
-from datetime import datetime
 
-# page config
 st.set_page_config(
     page_title="Cuaca Malang",
     page_icon="🌤️",
     layout="centered"
 )
 
-# ── koneksi ke Google Sheets via Streamlit Secrets ──────────
 @st.cache_resource
 def connect_sheets():
     scopes = [
@@ -25,24 +22,24 @@ def connect_sheets():
     client = gspread.authorize(creds)
     return client
 
+@st.cache_data(ttl=300)  # cache 5 menit, auto refresh
 def load_data():
     client = connect_sheets()
     sheet = client.open_by_key(st.secrets["spreadsheet"]["id"])
     ws = sheet.worksheet("Weather Data")
     data = ws.get_all_records()
     df = pd.DataFrame(data)
+    df["Timestamp"] = pd.to_datetime(df["Timestamp"])
+    df = df.sort_values("Timestamp", ascending=True).reset_index(drop=True)
     return df
 
 
-# ── UI ───────────────────────────────────────────────────────
 st.title("🌤️ Dashboard Cuaca Malang")
 st.caption("Data diambil otomatis dari weatherstack.com · Update jam 00:38 & 12:38")
 
-# tombol refresh
 if st.button("🔄 Refresh Data"):
-    st.cache_resource.clear()
+    st.cache_data.clear()
 
-# load data
 with st.spinner("Mengambil data dari Google Sheets..."):
     try:
         df = load_data()
@@ -54,7 +51,7 @@ if df.empty:
     st.warning("Belum ada data di spreadsheet.")
     st.stop()
 
-# ambil data terbaru
+# ambil data terbaru setelah di-sort
 latest = df.iloc[-1]
 
 # ── CURRENT WEATHER CARD ─────────────────────────────────────
@@ -73,16 +70,12 @@ with col2:
     st.metric("🔵 Pressure", f"{latest['Pressure (hPa)']} hPa")
     st.metric("☀️ UV Index", f"{latest['UV Index']}")
 
-st.info(f"**{latest['Description']}** · {latest['City']} · {latest['Timestamp']}")
+st.info(f"**{latest['Description']}** · {latest['City']} · {latest['Timestamp'].strftime('%Y-%m-%d %H:%M:%S')}")
 
 st.divider()
 
 # ── RIWAYAT CHART ────────────────────────────────────────────
 st.subheader("📈 Riwayat Cuaca")
-
-# konversi timestamp
-df["Timestamp"] = pd.to_datetime(df["Timestamp"])
-df = df.sort_values("Timestamp")
 
 tab1, tab2, tab3 = st.tabs(["🌡️ Suhu", "💧 Humidity", "🌬️ Wind Speed"])
 
@@ -109,4 +102,4 @@ st.dataframe(
     use_container_width=True
 )
 
-st.caption(f"Total data: {len(df)} record · Terakhir update: {latest['Timestamp']}")
+st.caption(f"Total data: {len(df)} record · Terakhir update: {latest['Timestamp'].strftime('%Y-%m-%d %H:%M:%S')}")
