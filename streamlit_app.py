@@ -99,7 +99,8 @@ show_cols = ["Timestamp", "Temperature (°C)", "Feels Like (°C)",
 
 st.dataframe(
     df[show_cols].sort_values("Timestamp", ascending=False).reset_index(drop=True),
-    use_container_width=True
+    use_container_width=True,
+    hide_index=True
 )
 
 st.caption(f"Total data: {len(df)} record · Terakhir update: {latest['Timestamp'].strftime('%Y-%m-%d %H:%M:%S')}")
