@@ -1,12 +1,13 @@
-# versi pipeline tanpa scheduler - dipakai oleh GitHub Actions
 # Gabriella Fadhilatus Awanda - Cetta Technical Test
 
 import requests
 import gspread
 import os
 import json
-from datetime import datetime
+from datetime import datetime, timezone, timedelta
 from google.oauth2.service_account import Credentials
+
+WIB = timezone(timedelta(hours=7))
 
 # ambil config dari environment variables (GitHub Secrets)
 WEATHERSTACK_API_KEY = os.environ["WEATHERSTACK_API_KEY"]
@@ -52,7 +53,7 @@ def fetch_weather():
     loc = data["location"]
 
     return {
-        "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+        "timestamp": datetime.now(WIB).strftime("%Y-%m-%d %H:%M:%S"),
         "city": loc["name"],
         "date": loc["localtime"].split(" ")[0],
         "local_time": loc["localtime"].split(" ")[1],
@@ -89,7 +90,7 @@ def save_to_sheets(ws, data):
 
 
 if __name__ == "__main__":
-    print(f"Pipeline jalan: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+    print(f"Pipeline jalan: {datetime.now(WIB).strftime('%Y-%m-%d %H:%M:%S')} WIB")
     try:
         ws = connect_sheets()
         data = fetch_weather()

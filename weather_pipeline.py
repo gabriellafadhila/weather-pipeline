@@ -5,9 +5,11 @@ import requests
 import gspread
 import schedule
 import time
-from datetime import datetime
+from datetime import datetime, timezone, timedelta
 from google.oauth2.service_account import Credentials
 from config import WEATHERSTACK_API_KEY, CITY, CREDENTIALS_FILE, SPREADSHEET_ID, SHEET_NAME, SCHEDULE_TIMES
+
+WIB = timezone(timedelta(hours=7))
 
 
 def connect_to_sheets():
@@ -45,7 +47,7 @@ def fetch_weather():
     loc = data["location"]
 
     result = {
-        "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+        "timestamp": datetime.now(WIB).strftime("%Y-%m-%d %H:%M:%S"),
         "city": loc["name"],
         "date": loc["localtime"].split(" ")[0],
         "local_time": loc["localtime"].split(" ")[1],
@@ -85,7 +87,7 @@ def save_to_sheets(ws, data):
 
 
 def run_pipeline():
-    print(f"\nPipeline jalan: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+    print(f"\nPipeline jalan: {datetime.now(WIB).strftime('%Y-%m-%d %H:%M:%S')} WIB")
     try:
         ws = connect_to_sheets()
         data = fetch_weather()
