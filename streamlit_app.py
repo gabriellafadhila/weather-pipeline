@@ -36,6 +36,7 @@ def load_data():
 
 st.title("🌤️ Dashboard Cuaca Malang")
 st.caption("Data diambil otomatis dari weatherstack.com · Update jam 00:38 & 12:38")
+st.caption("ℹ️ Pipeline dijalankan via GitHub Actions, jadi waktu eksekusi bisa delay beberapa menit hingga 1+ jam dari jadwal resmi karena antrean di runner")
 
 if st.button("🔄 Refresh Data"):
     st.cache_data.clear()
